@@ -10,16 +10,19 @@ type SteamCMD struct {
 	Prompts []*Prompt
 	console *console.Console
 
-	stdout io.Writer
+	Stdout io.Writer
 }
 
-func New() *SteamCMD {
+// New creates a new SteamCMD instance.
+func New(stdout io.Writer) *SteamCMD {
 	return &SteamCMD{
 		Prompts: make([]*Prompt, 0),
+		Stdout:  stdout,
 	}
 }
 
-func (s *SteamCMD) RunHeadless() error {
+// Run puts all the prompts together and executes them.
+func (s *SteamCMD) Run() error {
 	cmd := "steamcmd"
 
 	for _, prompt := range s.Prompts {
@@ -27,8 +30,7 @@ func (s *SteamCMD) RunHeadless() error {
 	}
 
 	cmd += " +quit"
-
-	s.console = console.New(cmd, s.stdout)
+	s.console = console.New(cmd, s.Stdout)
 	err := s.console.Run()
 	if err != nil {
 		return err
