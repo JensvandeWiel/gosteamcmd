@@ -8,11 +8,14 @@ import (
 	"io"
 )
 
+//Todo console should only be used if not headless otherwise just use os.exec
+
 type Console struct {
 	stdout      io.Writer
 	commandLine string
 	conPTY      *conpty.ConPty
 	ExitCode    uint32
+	Parser      *Parser
 }
 
 func New(exePath string, stdout io.Writer) *Console {
@@ -30,7 +33,7 @@ func (c *Console) Run() error {
 	}
 	defer c.conPTY.Close()
 
-	go io.Copy(c.stdout, c.conPTY)
+	go io.Copy(io.MultiWriter(c.stdout, c.Parser), c.conPTY)
 
 	c.ExitCode, err = c.conPTY.Wait(context.Background())
 	if err != nil {
