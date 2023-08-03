@@ -6,34 +6,33 @@ import (
 )
 
 type SteamCMD struct {
-	// Prompts contains all the commands that will be executed.
-	Prompts []*Prompt
-	console *console.Console
+	// prompts contains all the commands that will be executed.
+	prompts []*Prompt
+	Console *console.Console
 
 	Stdout io.Writer
 }
 
 // New creates a new SteamCMD instance.
-func New(stdout io.Writer) *SteamCMD {
-	return &SteamCMD{
-		Prompts: make([]*Prompt, 0),
+func New(stdout io.Writer, prompts []*Prompt) *SteamCMD {
+
+	s := &SteamCMD{
+		prompts: prompts,
 		Stdout:  stdout,
 	}
-}
 
-// Run puts all the prompts together and executes them.
-func (s *SteamCMD) Run() error {
+	//prepare command
 	cmd := "steamcmd"
-
-	for _, prompt := range s.Prompts {
+	for _, prompt := range s.prompts {
 		cmd += " +" + prompt.FullPrompt
 	}
-
 	cmd += " +quit"
-	s.console = console.New(cmd, s.Stdout)
-	err := s.console.Run()
-	if err != nil {
-		return err
-	}
-	return nil
+	s.Console = console.New(cmd, s.Stdout)
+
+	return s
+}
+
+// Run executes the SteamCMD instance.
+func (s *SteamCMD) Run() (uint32, error) {
+	return s.Console.Run()
 }
