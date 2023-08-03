@@ -2,13 +2,15 @@ package gosteamcmd
 
 import (
 	"github.com/jensvandewiel/gosteamcmd/console"
-	"os"
+	"io"
 )
 
 type SteamCMD struct {
 	// Prompts contains all the commands that will be executed.
 	Prompts []*Prompt
 	console *console.Console
+
+	stdout io.Writer
 }
 
 func New() *SteamCMD {
@@ -26,7 +28,7 @@ func (s *SteamCMD) RunHeadless() error {
 
 	cmd += " +quit"
 
-	s.console = console.New(cmd, os.Stdout)
+	s.console = console.New(cmd, s.stdout)
 	err := s.console.Run()
 	if err != nil {
 		return err
