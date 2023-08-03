@@ -10,7 +10,7 @@ type SteamCMD struct {
 	Prompts []*Prompt
 	console *console.Console
 
-	Stdout io.Writer
+	stdout io.Writer
 }
 
 func New() *SteamCMD {
@@ -28,7 +28,7 @@ func (s *SteamCMD) RunHeadless() error {
 
 	cmd += " +quit"
 
-	s.console = console.New(cmd, io.Discard)
+	s.console = console.New(cmd, s.stdout)
 	err := s.console.Run()
 	if err != nil {
 		return err
