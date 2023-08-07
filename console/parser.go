@@ -19,6 +19,7 @@ const (
 // Parser is a parser for the steamcmd console output. Right now it only parses the progress of downloading, verifying and preallocating. To capture other output use the stdout.
 type Parser struct {
 	OnInformationReceived func(action Action, progress float64, currentWritten, total uint64)
+	OnAppInstalled        func(app uint32)
 }
 
 // NewParser creates a new Parser instance. this must be used, if not the parser will not work.
@@ -26,6 +27,7 @@ func NewParser() *Parser {
 	// Set empty function because otherwise it will panic, because not every user will use this.
 	return &Parser{
 		OnInformationReceived: func(action Action, progress float64, currentWritten, total uint64) {},
+		OnAppInstalled:        func(app uint32) {},
 	}
 }
 
@@ -49,6 +51,27 @@ func (p *Parser) Write(data []byte) (int, error) {
 			return 0, err
 		}
 		go p.OnInformationReceived(Preallocating, progress, current, total)
+	case strings.Contains(string(data), "fully installed"):
+		// Define the regular expression pattern to match the App ID
+		pattern := `App '(\d+)'`
+
+		// Compile the regular expression
+		regex := regexp.MustCompile(pattern)
+
+		// Find the first match of the pattern in the input string
+		match := regex.FindStringSubmatch(string(data))
+
+		// Extract the App ID from the matched groups
+		if len(match) >= 2 {
+			appIDStr := match[1]
+
+			// Parse the App ID string to uint32
+			appID, err := strconv.ParseUint(appIDStr, 10, 32)
+			if err != nil {
+				return 0, err
+			}
+			p.OnAppInstalled(uint32(appID))
+		}
 	}
 	return len(data), nil
 }

@@ -15,13 +15,16 @@ func main() {
 		gosteamcmd.AppUpdate(258550, "", true),
 	}
 
-	cmd := gosteamcmd.New(os.Stdout, prompts)
+	cmd := gosteamcmd.New(os.Stdout, prompts, "")
 
 	cmd.Console.Parser.OnInformationReceived = func(action console.Action, progress float64, currentWritten, total uint64) {
 		println("")
 	}
+	cmd.Console.Parser.OnAppInstalled = func(app uint32) {
+		println("App installed: ", app, " Yay!")
+	}
 
-	err := cmd.Run()
+	_, err := cmd.Run()
 
 	if err != nil {
 		panic(err)
