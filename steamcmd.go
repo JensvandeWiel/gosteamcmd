@@ -13,8 +13,8 @@ type SteamCMD struct {
 	Stdout io.Writer
 }
 
-// New creates a new SteamCMD instance.
-func New(stdout io.Writer, prompts []*Prompt) *SteamCMD {
+// New creates a new SteamCMD instance. steamPath can be left empty like "" to use global path If set it uses the custom path
+func New(stdout io.Writer, prompts []*Prompt, steamPath string) *SteamCMD {
 
 	s := &SteamCMD{
 		prompts: prompts,
@@ -22,7 +22,7 @@ func New(stdout io.Writer, prompts []*Prompt) *SteamCMD {
 	}
 
 	//prepare command
-	cmd := "steamcmd"
+	cmd := path(steamPath)
 	for _, prompt := range s.prompts {
 		cmd += " +" + prompt.FullPrompt
 	}
@@ -35,4 +35,11 @@ func New(stdout io.Writer, prompts []*Prompt) *SteamCMD {
 // Run executes the SteamCMD instance.
 func (s *SteamCMD) Run() (uint32, error) {
 	return s.Console.Run()
+}
+
+func path(steamPath string) string {
+	if steamPath != "" {
+		return steamPath
+	}
+	return "steamcmd"
 }
