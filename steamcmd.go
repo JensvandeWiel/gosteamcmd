@@ -23,11 +23,12 @@ func New(stdout io.Writer, prompts []*Prompt, steamPath string) *SteamCMD {
 
 	//prepare command
 	cmd := path(steamPath)
+	var args []string
 	for _, prompt := range s.prompts {
-		cmd += " +" + prompt.FullPrompt
+		args = append(args, "+"+prompt.FullPrompt)
 	}
-	cmd += " +quit"
-	s.Console = console.New(cmd, s.Stdout)
+	args = append(args, "+quit")
+	s.Console = console.New(cmd, args, s.Stdout)
 
 	return s
 }

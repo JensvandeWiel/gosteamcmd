@@ -1,22 +1,19 @@
-//go:build windows
+//go:build unix
 
 package console
 
 import (
-	"context"
 	"fmt"
-	"github.com/UserExistsError/conpty"
 	"io"
 	"os/exec"
-	"strings"
 )
 
 type Console struct {
 	stdout      io.Writer // stdout is the writer where the output will be written to.
 	commandLine string    // commandLine is the command that will be executed.
-	conPTY      *conpty.ConPty
-	args        []string
+	proc        *exec.Cmd
 	exitCode    uint32
+	args        []string
 	Parser      *Parser
 }
 
@@ -35,23 +32,28 @@ func (c *Console) Run() (uint32, error) {
 	a = append(a, c.commandLine)
 	a = append(a, c.args...)
 
-	c.conPTY, err = conpty.Start(c.commandLine + " " + strings.Join(a, " "))
+	c.proc = exec.Command("sh", a...)
 	if err != nil {
 		return 1, err
 	}
-	defer c.conPTY.Close()
 
 	d := &duplicateWriter{
 		writer1: c.Parser,
 		writer2: c.stdout,
 	}
 
-	go io.Copy(d, c.conPTY)
+	c.proc.Stdout = d
+	c.proc.Stderr = d
 
-	c.exitCode, err = c.conPTY.Wait(context.Background())
+	err = c.proc.Run()
 	if err != nil {
-		return 1, err
+		if exitErr, ok := err.(*exec.ExitError); ok {
+			c.exitCode = uint32(exitErr.ExitCode())
+		} else {
+			return 1, err
+		}
 	}
+	c.exitCode = uint32(c.proc.ProcessState.ExitCode())
 
 	return c.exitCode, nil
 }
