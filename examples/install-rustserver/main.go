@@ -11,8 +11,8 @@ func main() {
 
 	prompts := []*gosteamcmd.Prompt{
 		gosteamcmd.ForceInstallDir("c:\\rustserver\\"),
-		gosteamcmd.Login("", ""),
-		gosteamcmd.AppUpdate(258550, "", true),
+		gosteamcmd.Login("", "", ""),
+		gosteamcmd.AppUpdate(2430930, "", true),
 	}
 
 	cmd := gosteamcmd.New(os.Stdout, prompts, "")

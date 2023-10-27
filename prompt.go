@@ -28,11 +28,11 @@ func AppUpdate(appID int, beta string, validate bool) *Prompt {
 	return &Prompt{cmd, AppUpdatePrompt}
 }
 
-// Login logs into SteamCMD with the given username and password. If the arguments are empty, it will login as anonymous.
-func Login(username string, password string) *Prompt {
+// Login logs into SteamCMD with the given username and password. If the arguments are empty strings, it will login as anonymous.
+func Login(username string, password string, authcode string) *Prompt {
 	cmd := "login "
 	if username != "" {
-		cmd += username + " " + password
+		cmd += username + " " + password + " " + authcode
 	} else {
 		cmd += "anonymous"
 	}
