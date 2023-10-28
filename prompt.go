@@ -32,7 +32,7 @@ func AppUpdate(appID int, beta string, validate bool) *Prompt {
 func Login(username string, password string, authcode string) *Prompt {
 	cmd := "login "
 	if username != "" {
-		cmd += username + " " + password + " " + authcode
+		cmd += username + " " + password + " " + authcode + " "
 	} else {
 		cmd += "anonymous"
 	}
